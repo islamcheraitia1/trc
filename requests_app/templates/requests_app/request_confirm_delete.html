@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Request - Sonatrach TRC{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><span class="lang-en">Delete Request</span><span class="lang-fr">Supprimer la demande</span></h1>
+</div>
+
+<div class="card" style="max-width: 600px;">
+    <p style="margin-bottom: 1.5rem;"><span class="lang-en">Are you sure you want to delete "<strong>{{ request_obj.title }}</strong>"?</span><span class="lang-fr">Êtes-vous sûr de vouloir supprimer "<strong>{{ request_obj.title }}</strong>" ?</span></p>
+    <form method="POST">
+        {% csrf_token %}
+        <div style="display: flex; gap: 0.5rem;">
+            <button type="submit" class="btn btn-danger"><span class="lang-en">Delete</span><span class="lang-fr">Supprimer</span></button>
+            <a href="{% url 'request_detail' request_obj.id %}" class="btn btn-secondary"><span class="lang-en">Cancel</span><span class="lang-fr">Annuler</span></a>
+        </div>
+    </form>
+</div>
+{% endblock %}

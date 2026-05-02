@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}Calendar - Sonatrach TRC{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><span class="lang-en">Scheduled Interventions</span><span class="lang-fr">Interventions planifiées</span></h1>
+</div>
+
+<div class="card">
+    {% regroup requests by scheduled_date.date as scheduled_by_date %}
+    <div class="calendar-grid">
+        {% for date in scheduled_by_date %}
+        <div class="calendar-day">
+            <h3 style="color: var(--primary);">{{ date.grouper|date:"l, F d, Y" }}</h3>
+            {% for req in date.list %}
+            <div class="calendar-event">
+                <div style="display: flex; justify-content: space-between; align-items: start;">
+                    <div>
+                        <p style="font-weight: 500; margin: 0;">{{ req.title }}</p>
+                        <p style="font-size: 0.75rem; color: var(--text-secondary); margin: 0.25rem 0;">{{ req.requester.get_full_name|default:req.requester.username }}</p>
+                        <p style="font-size: 0.75rem; color: var(--text-secondary); margin: 0;">
+                            {{ req.get_request_category_display }} — {{ req.get_request_subcategory_display }}
+                        </p>
+                        <p style="font-size: 0.75rem; color: var(--text-secondary); margin: 0;">
+                            <i data-lucide="map-pin" style="width: 12px; height: 12px;"></i>
+                            {{ req.office_location }}{% if req.destination_location %} → {{ req.destination_location }}{% endif %}
+                        </p>
+                        <p style="font-size: 0.75rem; color: var(--text-secondary); margin: 0;">
+                            <i data-lucide="clock" style="width: 12px; height: 12px;"></i>
+                            {{ req.scheduled_date|date:"H:i" }}
+                        </p>
+                    </div>
+                    <span class="badge badge-{{ req.status_color }}"><span class="lang-en">{{ req.get_status_display }}</span><span class="lang-fr">{{ req.get_status_display }}</span></span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% empty %}
+        <p style="text-align: center; padding: 2rem; color: var(--text-secondary);"><span class="lang-en">No scheduled interventions.</span><span class="lang-fr">Aucune intervention planifiée.</span></p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

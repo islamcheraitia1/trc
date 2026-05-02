@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block title %}User Management - Sonatrach TRC{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><span class="lang-en">User Management</span><span class="lang-fr">Gestion des utilisateurs</span></h1>
+</div>
+
+<input type="text" id="userSearchInput" class="form-control"
+    style="width: 300px; margin-bottom: 1.5rem;" placeholder="Search by username or name...">
+
+<div class="card">
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th><span class="lang-en">Username</span><span class="lang-fr">Nom d'utilisateur</span></th>
+                    <th><span class="lang-en">Name</span><span class="lang-fr">Nom</span></th>
+                    <th><span class="lang-en">Email</span><span class="lang-fr">E-mail</span></th>
+                    <th><span class="lang-en">Role</span><span class="lang-fr">Rôle</span></th>
+                    <th><span class="lang-en">Department</span><span class="lang-fr">Département</span></th>
+                    <th><span class="lang-en">Actions</span><span class="lang-fr">Actions</span></th>
+                </tr>
+            </thead>
+            <tbody id="userTableBody">
+                {% for user in users %}
+                <tr data-search="{{ user.username|lower }} {{ user.first_name|lower }} {{ user.last_name|lower }} {{ user.email|lower }}">
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.get_full_name }}</td>
+                    <td>{{ user.email }}</td>
+                    <td><span class="badge badge-{% if user.profile.role == 'admin' %}indigo{% else %}gray{% endif %}">{{ user.profile.get_role_display }}</span></td>
+                    <td>{{ user.profile.department }}</td>
+                    <td style="display: flex; gap: 0.25rem;">
+                        <form method="POST" action="{% url 'user_toggle_role' user.id %}" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-secondary"
+                                style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">
+                                {% if user.profile.role == 'admin' %}<span class="lang-en">Make Employee</span><span
+                                    class="lang-fr">Rendre employé</span>{% else %}<span class="lang-en">Make
+                                    Admin</span><span class="lang-fr">Rendre admin</span>{% endif %}
+                            </button>
+                        </form>
+                        {% if user.id != request.user.id %}
+                        <form method="POST" action="{% url 'user_delete' user.id %}"
+                            onsubmit="return confirm('Are you sure you want to delete this user?');"
+                            style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger"
+                                style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">
+                                <span class="lang-en">Delete</span><span class="lang-fr">Supprimer</span>
+                            </button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+                {% if not users %}
+                <tr id="emptyState">
+                    <td colspan="6" style="text-align: center; padding: 2rem; color: var(--text-secondary);"><span
+                            class="lang-en">No users found.</span><span class="lang-fr">Aucun utilisateur trouvé.</span>
+                    </td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const input = document.getElementById('userSearchInput');
+        const rows = document.querySelectorAll('#userTableBody tr[data-search]');
+
+        if (input) {
+            input.addEventListener('input', function () {
+                const term = this.value.toLowerCase().trim();
+                let visibleCount = 0;
+
+                rows.forEach(function (row) {
+                    const search = row.getAttribute('data-search') || '';
+                    if (term === '' || search.includes(term)) {
+                        row.style.display = '';
+                        visibleCount++;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+
+                const emptyRow = document.getElementById('emptyState');
+                if (emptyRow) {
+                    emptyRow.style.display = visibleCount === 0 ? '' : 'none';
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

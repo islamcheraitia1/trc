@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}Login - Sonatrach TRC{% endblock %}
+
+{% block auth_content %}
+    <div class="auth-card">
+        <div style="text-align: center; margin-bottom: 1.25rem;">
+            <img src="/static/images/sonatrach.svg" alt="Sonatrach" style="width: 100px; height: auto; margin: 0 auto 0.75rem; display: block;">
+            <p style="color: var(--text-secondary); font-size: 0.8rem; margin-top: 0.25rem;"><span class="lang-en">TRC Maintenance Portal</span><span class="lang-fr">Portail de maintenance TRC</span></p>
+        </div>
+        <h1 style="text-align: center; font-size: 1.125rem; margin-bottom: 1.25rem;"><span class="lang-en">Sign In</span><span class="lang-fr">Se connecter</span></h1>
+        <form method="POST">
+            {% csrf_token %}
+            <div class="form-group" style="margin-bottom: 0.75rem;">
+                <label for="username"><span class="lang-en">Username</span><span class="lang-fr">Nom d'utilisateur</span></label>
+                <input type="text" name="username" id="username" class="form-control" required autofocus>
+            </div>
+            <div class="form-group" style="margin-bottom: 1rem;">
+                <label for="password"><span class="lang-en">Password</span><span class="lang-fr">Mot de passe</span></label>
+                <input type="password" name="password" id="password" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary" style="margin-bottom: 1rem;"><span class="lang-en">Sign In</span><span class="lang-fr">Se connecter</span></button>
+        </form>
+        <p class="auth-link" style="font-size: 0.8rem;">
+            <span class="lang-en">Don't have an account? <a href="{% url 'register' %}">Create one</a></span><span class="lang-fr">Vous n'avez pas de compte? <a href="{% url 'register' %}">Créez-en un</a></span>
+        </p>
+    </div>
+{% endblock %}

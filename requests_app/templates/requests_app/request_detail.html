@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ request_obj.title }} - Sonatrach TRC{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>{{ request_obj.title }}</h1>
+    <div style="display: flex; gap: 0.5rem;">
+        {% if request_obj.status == 'pending' %}
+        <a href="{% url 'request_edit' request_obj.id %}" class="btn btn-secondary"><span class="lang-en">Edit</span><span class="lang-fr">Modifier</span></a>
+        <a href="{% url 'request_delete' request_obj.id %}" class="btn btn-danger"><span class="lang-en">Delete</span><span class="lang-fr">Supprimer</span></a>
+        {% endif %}
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
+    <div class="card">
+        <h3 style="margin-bottom: 1rem;"><span class="lang-en">Request Details</span><span class="lang-fr">Détails de la demande</span></h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+            <div>
+                <p style="font-size: 0.75rem; color: var(--text-secondary);"><span class="lang-en">CATEGORY</span><span class="lang-fr">CATÉGORIE</span></p>
+                <p style="font-weight: 500;">{{ request_obj.get_request_category_display }}</p>
+            </div>
+            <div>
+                <p style="font-size: 0.75rem; color: var(--text-secondary);"><span class="lang-en">SUB-CATEGORY</span><span class="lang-fr">SOUS-CATÉGORIE</span></p>
+                <p style="font-weight: 500;">{{ request_obj.get_request_subcategory_display }}</p>
+            </div>
+            <div>
+                <p style="font-size: 0.75rem; color: var(--text-secondary);"><span class="lang-en">PRIORITY</span><span class="lang-fr">PRIORITÉ</span></p>
+                <p><span class="badge badge-{{ request_obj.priority }}"><span class="lang-en">{{ request_obj.get_priority_display }}</span><span class="lang-fr">{{ request_obj.get_priority_display }}</span></span></p>
+            </div>
+            <div>
+                <p style="font-size: 0.75rem; color: var(--text-secondary);"><span class="lang-en">STATUS</span><span class="lang-fr">STATUT</span></p>
+                <p><span class="badge badge-{{ request_obj.status_color }}"><span class="lang-en">{{ request_obj.get_status_display }}</span><span class="lang-fr">{{ request_obj.get_status_display }}</span></span></p>
+            </div>
+            <div>
+                <p style="font-size: 0.75rem; color: var(--text-secondary);"><span class="lang-en">LOCATION</span><span class="lang-fr">EMPLACEMENT</span></p>
+                <p style="font-weight: 500;">{{ request_obj.office_location }}</p>
+            </div>
+            {% if request_obj.destination_location %}
+            <div>
+                <p style="font-size: 0.75rem; color: var(--text-secondary);"><span class="lang-en">DESTINATION</span><span class="lang-fr">DESTINATION</span></p>
+                <p style="font-weight: 500;">{{ request_obj.destination_location }}</p>
+            </div>
+            {% endif %}
+        </div>
+        <div style="margin-bottom: 1rem;">
+            <p style="font-size: 0.75rem; color: var(--text-secondary);"><span class="lang-en">DESCRIPTION</span><span class="lang-fr">DESCRIPTION</span></p>
+            <p>{{ request_obj.description|linebreaks }}</p>
+        </div>
+        {% if request_obj.attachment %}
+        <div style="margin-bottom: 1rem;">
+            <p style="font-size: 0.75rem; color: var(--text-secondary);"><span class="lang-en">ATTACHMENT</span><span class="lang-fr">PIÈCE JOINTE</span></p>
+            <img src="{{ request_obj.attachment.url }}" alt="Attachment" style="max-width: 100%; border-radius: 0.5rem;">
+        </div>
+        {% endif %}
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div>
+                <p style="font-size: 0.75rem; color: var(--text-secondary);"><span class="lang-en">AVAILABILITY START</span><span class="lang-fr">DISPONIBILITÉ DÉBUT</span></p>
+                <p>{{ request_obj.availability_start|date:"M d, Y H:i" }}</p>
+            </div>
+            <div>
+                <p style="font-size: 0.75rem; color: var(--text-secondary);"><span class="lang-en">AVAILABILITY END</span><span class="lang-fr">DISPONIBILITÉ FIN</span></p>
+                <p>{{ request_obj.availability_end|date:"M d, Y H:i" }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <div class="card" style="margin-bottom: 1rem;">
+            <h3 style="margin-bottom: 1rem;"><span class="lang-en">Status Timeline</span><span class="lang-fr">Chronologie du statut</span></h3>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <p style="font-weight: 500;"><span class="lang-en">Request Created</span><span class="lang-fr">Demande créée</span></p>
+                    <p style="font-size: 0.875rem; color: var(--text-secondary);">{{ request_obj.created_at|date:"M d, Y H:i" }}</p>
+                </div>
+                {% if request_obj.status != 'pending' %}
+                <div class="timeline-item">
+                    <p style="font-weight: 500;">
+                        {% if request_obj.status == 'processing' %}<span class="lang-en">Processing Started</span><span class="lang-fr">Traitement commencé</span>
+                        {% elif request_obj.status == 'scheduled' %}<span class="lang-en">Scheduled</span><span class="lang-fr">Planifié</span>
+                        {% elif request_obj.status == 'completed' %}<span class="lang-en">Completed</span><span class="lang-fr">Terminé</span>
+                        {% elif request_obj.status == 'rejected' %}<span class="lang-en">Rejected</span><span class="lang-fr">Rejeté</span>
+                        {% else %}{{ request_obj.get_status_display }}
+                        {% endif %}
+                    </p>
+                    <p style="font-size: 0.875rem; color: var(--text-secondary);">{{ request_obj.updated_at|date:"M d, Y H:i" }}</p>
+                </div>
+                {% endif %}
+                {% if request_obj.scheduled_date %}
+                <div class="timeline-item">
+                    <p style="font-weight: 500;"><span class="lang-en">Scheduled for</span><span class="lang-fr">Planifié pour</span></p>
+                    <p style="font-size: 0.875rem; color: var(--text-secondary);">{{ request_obj.scheduled_date|date:"M d, Y H:i" }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if request_obj.admin_notes %}
+        <div class="card">
+            <h3 style="margin-bottom: 1rem;"><span class="lang-en">Admin Notes</span><span class="lang-fr">Notes admin</span></h3>
+            <p>{{ request_obj.admin_notes|linebreaks }}</p>
+        </div>
+        {% endif %}
+
+        {% if request_obj.rejection_reason %}
+        <div class="card">
+            <h3 style="margin-bottom: 1rem;"><span class="lang-en">Rejection Reason</span><span class="lang-fr">Raison du rejet</span></h3>
+            <p>{{ request_obj.rejection_reason|linebreaks }}</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

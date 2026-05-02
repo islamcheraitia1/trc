@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}Profile - Sonatrach TRC{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><span class="lang-en">My Profile</span><span class="lang-fr">Mon profil</span></h1>
+</div>
+
+<div class="card" style="max-width: 600px;">
+    <form method="POST">
+        {% csrf_token %}
+        <div class="form-group">
+            <label><span class="lang-en">Username</span><span class="lang-fr">Nom d'utilisateur</span></label>
+            <input type="text" class="form-control" value="{{ request.user.username }}" disabled>
+        </div>
+        <div class="form-group">
+            <label for="id_first_name"><span class="lang-en">First Name</span><span class="lang-fr">Prénom</span></label>
+            {{ form.first_name }}
+        </div>
+        <div class="form-group">
+            <label for="id_last_name"><span class="lang-en">Last Name</span><span class="lang-fr">Nom</span></label>
+            {{ form.last_name }}
+        </div>
+        <div class="form-group">
+            <label for="id_department"><span class="lang-en">Department</span><span class="lang-fr">Département</span></label>
+            {{ form.department }}
+        </div>
+        <div class="form-group">
+            <label for="id_office_location"><span class="lang-en">Office Location</span><span class="lang-fr">Emplacement du bureau</span></label>
+            {{ form.office_location }}
+        </div>
+        <div class="form-group">
+            <label for="id_phone"><span class="lang-en">Work Phone Number</span><span class="lang-fr">Numéro de poste</span></label>
+            {{ form.phone }}
+        </div>
+        <div class="form-group">
+            <label><span class="lang-en">Role</span><span class="lang-fr">Rôle</span></label>
+            <input type="text" class="form-control" value="{{ request.user.profile.get_role_display }}" disabled>
+        </div>
+        <button type="submit" class="btn btn-primary"><span class="lang-en">Update Profile</span><span class="lang-fr">Mettre à jour le profil</span></button>
+    </form>
+</div>
+{% endblock %}

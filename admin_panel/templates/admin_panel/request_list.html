@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}All Requests - Sonatrach TRC{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><span class="lang-en">All Requests</span><span class="lang-fr">Toutes les demandes</span></h1>
+    <span style="color: var(--text-secondary); font-size: 0.875rem;"><span class="lang-en">{{ requests|length }} total</span><span class="lang-fr">{{ requests|length }} total</span></span>
+</div>
+
+<form method="GET" class="filter-bar">
+    <input type="text" name="search" data-en-placeholder="Search requests..." data-fr-placeholder="Rechercher des demandes..." value="{{ search }}" class="form-control" style="width: 300px;">
+    <select name="status" class="form-control" style="width: auto;">
+        <option value="" data-en="All Status" data-fr="Tous les statuts">{% if status_filter == '' %}All Status{% else %}Tous les statuts{% endif %}</option>
+        <option value="pending" {% if status_filter == 'pending' %}selected{% endif %} data-en="Pending" data-fr="En attente">{% if status_filter == 'pending' %}Pending{% else %}En attente{% endif %}</option>
+        <option value="processing" {% if status_filter == 'processing' %}selected{% endif %} data-en="Processing" data-fr="En cours">{% if status_filter == 'processing' %}Processing{% else %}En cours{% endif %}</option>
+        <option value="scheduled" {% if status_filter == 'scheduled' %}selected{% endif %} data-en="Scheduled" data-fr="Planifié">{% if status_filter == 'scheduled' %}Scheduled{% else %}Planifié{% endif %}</option>
+        <option value="completed" {% if status_filter == 'completed' %}selected{% endif %} data-en="Completed" data-fr="Terminé">{% if status_filter == 'completed' %}Completed{% else %}Terminé{% endif %}</option>
+        <option value="rejected" {% if status_filter == 'rejected' %}selected{% endif %} data-en="Rejected" data-fr="Rejeté">{% if status_filter == 'rejected' %}Rejected{% else %}Rejeté{% endif %}</option>
+    </select>
+    <select name="priority" class="form-control" style="width: auto;">
+        <option value="" data-en="All Priority" data-fr="Toutes les priorités">{% if priority_filter == '' %}All Priority{% else %}Toutes les priorités{% endif %}</option>
+        <option value="low" {% if priority_filter == 'low' %}selected{% endif %} data-en="Low" data-fr="Faible">{% if priority_filter == 'low' %}Low{% else %}Faible{% endif %}</option>
+        <option value="medium" {% if priority_filter == 'medium' %}selected{% endif %} data-en="Medium" data-fr="Moyen">{% if priority_filter == 'medium' %}Medium{% else %}Moyen{% endif %}</option>
+        <option value="high" {% if priority_filter == 'high' %}selected{% endif %} data-en="High" data-fr="Élevé">{% if priority_filter == 'high' %}High{% else %}Élevé{% endif %}</option>
+        <option value="urgent" {% if priority_filter == 'urgent' %}selected{% endif %} data-en="Urgent" data-fr="Urgent">{% if priority_filter == 'urgent' %}Urgent{% else %}Urgent{% endif %}</option>
+    </select>
+    <input type="date" name="date_from" value="{{ date_from }}" class="form-control" style="width: auto;" data-en-placeholder="From date" data-fr-placeholder="De la date">
+    <input type="date" name="date_to" value="{{ date_to }}" class="form-control" style="width: auto;" data-en-placeholder="To date" data-fr-placeholder="À la date">
+    <button type="submit" class="btn btn-primary" style="width: auto; white-space: nowrap;"><span class="lang-en">Filter</span><span class="lang-fr">Filtrer</span></button>
+</form>
+
+<div class="card">
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th><span class="lang-en">Title</span><span class="lang-fr">Titre</span></th>
+                    <th><span class="lang-en">Requester</span><span class="lang-fr">Demandeur</span></th>
+                    <th><span class="lang-en">Category</span><span class="lang-fr">Catégorie</span></th>
+                    <th><span class="lang-en">Sub-category</span><span class="lang-fr">Sous-catégorie</span></th>
+                    <th><span class="lang-en">Priority</span><span class="lang-fr">Priorité</span></th>
+                    <th><span class="lang-en">Status</span><span class="lang-fr">Statut</span></th>
+                    <th><span class="lang-en">Location</span><span class="lang-fr">Emplacement</span></th>
+                    <th><span class="lang-en">Created</span><span class="lang-fr">Créé</span></th>
+                    <th><span class="lang-en">Actions</span><span class="lang-fr">Actions</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for req in requests %}
+                <tr>
+                    <td><a href="{% url 'admin_request_detail' req.id %}" style="color: var(--primary); text-decoration: none;">{{ req.title }}</a></td>
+                    <td>{{ req.requester.get_full_name|default:req.requester.username }}</td>
+                    <td>{{ req.get_request_category_display }}</td>
+                    <td>{{ req.get_request_subcategory_display }}</td>
+                    <td><span class="badge badge-{{ req.priority }}"><span class="lang-en">{{ req.get_priority_display }}</span><span class="lang-fr">{{ req.get_priority_display }}</span></span></td>
+                    <td><span class="badge badge-{{ req.status_color }}"><span class="lang-en">{{ req.get_status_display }}</span><span class="lang-fr">{{ req.get_status_display }}</span></span></td>
+                    <td>{{ req.office_location }}{% if req.destination_location %} → {{ req.destination_location }}{% endif %}</td>
+                    <td>{{ req.created_at|date:"M d, Y" }}</td>
+                    <td>
+                        <a href="{% url 'admin_request_detail' req.id %}" class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;"><span class="lang-en">Manage</span><span class="lang-fr">Gérer</span></a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="9" style="text-align: center; padding: 2rem; color: var(--text-secondary);"><span class="lang-en">No requests found.</span><span class="lang-fr">Aucune demande trouvée.</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

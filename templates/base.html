@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Sonatrach TRC{% endblock %}</title>
+    <link rel="icon" type="image/svg+xml" href="/static/images/sonatrach.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/lucide-static@latest/font/lucide.min.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="/static/css/style.css">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    {% if user.is_authenticated %}
+    <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu">
+        <i data-lucide="menu"></i>
+    </button>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <img src="/static/images/sonatrach.svg" alt="Sonatrach" class="logo-icon" style="width: 36px; height: auto;">
+                    <span class="logo-text">SONATRACH TRC</span>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                {% if user.profile.is_admin %}
+                <a href="{% url 'admin_dashboard' %}" class="nav-item {% if request.path == '/admin-panel/' %}active{% endif %}">
+                    <i data-lucide="layout-dashboard"></i>
+                    <span class="lang-en">Dashboard</span><span class="lang-fr">Tableau de bord</span>
+                </a>
+                <a href="{% url 'admin_request_list' %}" class="nav-item {% if '/admin-panel/requests' in request.path %}active{% endif %}">
+                    <i data-lucide="clipboard-list"></i>
+                    <span class="lang-en">All Requests</span><span class="lang-fr">Toutes les demandes</span>
+                </a>
+                <a href="{% url 'request_create' %}" class="nav-item {% if '/requests/new' in request.path %}active{% endif %}">
+                    <i data-lucide="plus-circle"></i>
+                    <span class="lang-en">New Request</span><span class="lang-fr">Nouvelle demande</span>
+                </a>
+                <a href="{% url 'admin_calendar' %}" class="nav-item {% if '/admin-panel/calendar' in request.path %}active{% endif %}">
+                    <i data-lucide="calendar"></i>
+                    <span class="lang-en">Calendar</span><span class="lang-fr">Calendrier</span>
+                </a>
+                <a href="{% url 'user_list' %}" class="nav-item {% if '/admin-panel/users' in request.path %}active{% endif %}">
+                    <i data-lucide="users"></i>
+                    <span class="lang-en">Users</span><span class="lang-fr">Utilisateurs</span>
+                </a>
+                {% else %}
+                <a href="{% url 'request_list' %}" class="nav-item {% if request.path == '/requests/' %}active{% endif %}">
+                    <i data-lucide="clipboard-list"></i>
+                    <span class="lang-en">My Requests</span><span class="lang-fr">Mes demandes</span>
+                </a>
+                <a href="{% url 'request_create' %}" class="nav-item {% if '/requests/new' in request.path %}active{% endif %}">
+                    <i data-lucide="plus-circle"></i>
+                    <span class="lang-en">New Request</span><span class="lang-fr">Nouvelle demande</span>
+                </a>
+                {% endif %}
+            </nav>
+            <div class="sidebar-footer">
+                <a href="{% url 'profile' %}" class="nav-item">
+                    <i data-lucide="user"></i>
+                    <span>{{ user.get_full_name|default:user.username }}</span>
+                </a>
+                <a href="{% url 'logout' %}" class="nav-item">
+                    <i data-lucide="log-out"></i>
+                    <span class="lang-en">Logout</span><span class="lang-fr">Déconnexion</span>
+                </a>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                <div class="toast toast-{{ message.tags }}">
+                    <i data-lucide="{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}x-circle{% else %}info{% endif %}"></i>
+                    <span>{{ message }}</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+    {% else %}
+    <div class="auth-container">
+        {% block auth_content %}{% endblock %}
+    </div>
+    {% endif %}
+
+    <div class="language-switcher" style="position: fixed; bottom: 1rem; right: 1rem; z-index: 999; background: white; padding: 0.5rem; border-radius: 0.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+        <div style="display: flex; gap: 0.25rem;">
+            <button id="lang-en" style="border: none; padding: 0.25rem 0.5rem; border-radius: 0.25rem; cursor: pointer; font-size: 0.75rem;">EN</button>
+            <button id="lang-fr" style="border: none; padding: 0.25rem 0.5rem; border-radius: 0.25rem; cursor: pointer; font-size: 0.75rem;">FR</button>
+        </div>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+    <script src="/static/js/language.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

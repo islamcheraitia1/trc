@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}Register - Sonatrach TRC{% endblock %}
+
+{% block auth_content %}
+    <div class="auth-card">
+        <div style="text-align: center; margin-bottom: 1.25rem;">
+            <img src="/static/images/sonatrach.svg" alt="Sonatrach" style="width: 100px; height: auto; margin: 0 auto 0.75rem; display: block;">
+            <p style="color: var(--text-secondary); font-size: 0.8rem; margin-top: 0.25rem;"><span class="lang-en">TRC Maintenance Portal</span><span class="lang-fr">Portail de maintenance TRC</span></p>
+        </div>
+        <h1 style="text-align: center; font-size: 1.125rem; margin-bottom: 1.25rem;"><span class="lang-en">Create Account</span><span class="lang-fr">Créer un compte</span></h1>
+        <form method="POST">
+            {% csrf_token %}
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0 1rem;">
+                <div class="form-group" style="margin-bottom: 0.75rem;">
+                    <label for="id_username"><span class="lang-en">Username</span><span class="lang-fr">Nom d'utilisateur</span></label>
+                    {{ form.username }}
+                    {% if form.username.errors %}
+                    <small style="color: var(--danger); font-size: 0.75rem;">{{ form.username.errors.0 }}</small>
+                    {% endif %}
+                </div>
+                <div class="form-group" style="margin-bottom: 0.75rem;">
+                    <label for="id_first_name"><span class="lang-en">First Name</span><span class="lang-fr">Prénom</span></label>
+                    {{ form.first_name }}
+                </div>
+                <div class="form-group" style="margin-bottom: 0.75rem;">
+                    <label for="id_last_name"><span class="lang-en">Last Name</span><span class="lang-fr">Nom</span></label>
+                    {{ form.last_name }}
+                </div>
+                <div class="form-group" style="margin-bottom: 0.75rem;">
+                    <label for="id_password1"><span class="lang-en">Password</span><span class="lang-fr">Mot de passe</span></label>
+                    {{ form.password1 }}
+                </div>
+                <div class="form-group" style="margin-bottom: 0.75rem;">
+                    <label for="id_password2"><span class="lang-en">Confirm</span><span class="lang-fr">Confirmer</span></label>
+                    {{ form.password2 }}
+                </div>
+            </div>
+            <small style="color: var(--text-secondary); font-size: 0.7rem; display: block; margin: -0.5rem 0 0.75rem;"><span class="lang-en">Must contain at least one uppercase letter, one number, and be 8+ characters.</span><span class="lang-fr">Doit contenir au moins une majuscule, un chiffre, et faire 8+ caractères.</span></small>
+            <div class="form-group" style="margin-bottom: 0.75rem;">
+                <label for="id_department"><span class="lang-en">Department</span><span class="lang-fr">Département</span></label>
+                {{ form.department }}
+            </div>
+            <div class="form-group" style="margin-bottom: 0.75rem;">
+                <label for="id_office_location"><span class="lang-en">Office Location</span><span class="lang-fr">Emplacement du bureau</span></label>
+                {{ form.office_location }}
+            </div>
+            <div class="form-group" style="margin-bottom: 1rem;">
+                <label for="id_phone"><span class="lang-en">Work Phone Number</span><span class="lang-fr">Numéro de téléphone de travail</span></label>
+                {{ form.phone }}
+            </div>
+            <button type="submit" class="btn btn-primary" style="margin-bottom: 1rem;"><span class="lang-en">Create Account</span><span class="lang-fr">Créer un compte</span></button>
+        </form>
+        <p class="auth-link" style="font-size: 0.8rem;">
+            <span class="lang-en">Already have an account? <a href="{% url 'login' %}">Sign in</a></span><span class="lang-fr">Vous avez déjà un compte? <a href="{% url 'login' %}">Connectez-vous</a></span>
+        </p>
+    </div>
+{% endblock %}

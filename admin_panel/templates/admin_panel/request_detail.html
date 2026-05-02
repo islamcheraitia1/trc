@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Request - Sonatrach TRC{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><span class="lang-en">Manage Request</span><span class="lang-fr">Gérer la demande</span></h1>
+    <a href="{% url 'admin_request_list' %}" class="btn btn-secondary"><span class="lang-en">Back to List</span><span class="lang-fr">Retour à la liste</span></a>
+</div>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
+    <div class="card">
+        <h3 style="margin-bottom: 1rem;"><span class="lang-en">Request Details</span><span class="lang-fr">Détails de la demande</span></h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+            <div>
+                <p style="font-size: 0.75rem; color: var(--text-secondary);"><span class="lang-en">TITLE</span><span class="lang-fr">TITRE</span></p>
+                <p style="font-weight: 500;">{{ request_obj.title }}</p>
+            </div>
+            <div>
+                <p style="font-size: 0.75rem; color: var(--text-secondary);"><span class="lang-en">REQUESTER</span><span class="lang-fr">DEMANDEUR</span></p>
+                <p style="font-weight: 500;">{{ request_obj.requester.get_full_name|default:request_obj.requester.username }}</p>
+            </div>
+            <div>
+                <p style="font-size: 0.75rem; color: var(--text-secondary);"><span class="lang-en">CATEGORY</span><span class="lang-fr">CATÉGORIE</span></p>
+                <p>{{ request_obj.get_request_category_display }}</p>
+            </div>
+            <div>
+                <p style="font-size: 0.75rem; color: var(--text-secondary);"><span class="lang-en">SUB-CATEGORY</span><span class="lang-fr">SOUS-CATÉGORIE</span></p>
+                <p>{{ request_obj.get_request_subcategory_display }}</p>
+            </div>
+            <div>
+                <p style="font-size: 0.75rem; color: var(--text-secondary);"><span class="lang-en">PRIORITY</span><span class="lang-fr">PRIORITÉ</span></p>
+                <p><span class="badge badge-{{ request_obj.priority }}"><span class="lang-en">{{ request_obj.get_priority_display }}</span><span class="lang-fr">{{ request_obj.get_priority_display }}</span></span></p>
+            </div>
+            <div>
+                <p style="font-size: 0.75rem; color: var(--text-secondary);"><span class="lang-en">STATUS</span><span class="lang-fr">STATUT</span></p>
+                <p><span class="badge badge-{{ request_obj.status_color }}"><span class="lang-en">{{ request_obj.get_status_display }}</span><span class="lang-fr">{{ request_obj.get_status_display }}</span></span></p>
+            </div>
+        </div>
+        <div style="margin-bottom: 1rem;">
+            <p style="font-size: 0.75rem; color: var(--text-secondary);"><span class="lang-en">LOCATION</span><span class="lang-fr">EMPLACEMENT</span></p>
+            <p>{{ request_obj.office_location }}{% if request_obj.destination_location %} → {{ request_obj.destination_location }}{% endif %}</p>
+        </div>
+        <div style="margin-bottom: 1rem;">
+            <p style="font-size: 0.75rem; color: var(--text-secondary);"><span class="lang-en">DESCRIPTION</span><span class="lang-fr">DESCRIPTION</span></p>
+            <p>{{ request_obj.description|linebreaks }}</p>
+        </div>
+        {% if request_obj.attachment %}
+        <div style="margin-bottom: 1rem;">
+            <p style="font-size: 0.75rem; color: var(--text-secondary);"><span class="lang-en">ATTACHMENT</span><span class="lang-fr">PIÈCE JOINTE</span></p>
+            <img src="{{ request_obj.attachment.url }}" alt="Attachment" style="max-width: 100%; border-radius: 0.5rem;">
+        </div>
+        {% endif %}
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div>
+                <p style="font-size: 0.75rem; color: var(--text-secondary);"><span class="lang-en">AVAILABILITY START</span><span class="lang-fr">DISPONIBILITÉ DÉBUT</span></p>
+                <p>{{ request_obj.availability_start|date:"M d, Y H:i" }}</p>
+            </div>
+            <div>
+                <p style="font-size: 0.75rem; color: var(--text-secondary);"><span class="lang-en">AVAILABILITY END</span><span class="lang-fr">DISPONIBILITÉ FIN</span></p>
+                <p>{{ request_obj.availability_end|date:"M d, Y H:i" }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <div class="card" style="margin-bottom: 1rem;">
+            <h3 style="margin-bottom: 1rem;"><span class="lang-en">Update Request</span><span class="lang-fr">Mettre à jour la demande</span></h3>
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="update" value="1">
+                {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">
+                        <span class="lang-en">{{ field.label }}</span>
+                        <span class="lang-fr">
+                            {% if field.name == 'status' %}Statut
+                            {% elif field.name == 'scheduled_date' %}Date planifiée
+                            {% elif field.name == 'admin_notes' %}Notes admin
+                            {% elif field.name == 'rejection_reason' %}Raison du rejet
+                            {% else %}{{ field.label }}
+                            {% endif %}
+                        </span>
+                    </label>
+                    {{ field }}
+                </div>
+                {% endfor %}
+                <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;"><span class="lang-en">Update</span><span class="lang-fr">Mettre à jour</span></button>
+            </form>
+            <form method="POST" onsubmit="return confirm('Are you sure you want to delete this request?');">
+                {% csrf_token %}
+                <input type="hidden" name="delete" value="1">
+                <button type="submit" class="btn btn-danger" style="width: 100%; justify-content: center; margin-top: 0.5rem;"><span class="lang-en">Delete Request</span><span class="lang-fr">Supprimer la demande</span></button>
+            </form>
+        </div>
+
+        {% if request_obj.admin_notes %}
+        <div class="card" style="margin-bottom: 1rem;">
+            <h3 style="margin-bottom: 1rem;"><span class="lang-en">Admin Notes</span><span class="lang-fr">Notes admin</span></h3>
+            <p>{{ request_obj.admin_notes|linebreaks }}</p>
+        </div>
+        {% endif %}
+
+        {% if request_obj.rejection_reason %}
+        <div class="card">
+            <h3 style="margin-bottom: 1rem;"><span class="lang-en">Rejection Reason</span><span class="lang-fr">Raison du rejet</span></h3>
+            <p>{{ request_obj.rejection_reason|linebreaks }}</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

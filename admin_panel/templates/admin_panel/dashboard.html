@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Sonatrach TRC{% endblock %}
+
+{% block extra_css %}
+<style>
+    .chart-wrapper {
+        height: 300px;
+        position: relative;
+        width: 100%;
+    }
+    .stat-card {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .stat-icon i {
+        width: 24px;
+        height: 24px;
+    }
+    .stat-info h3 {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.25rem;
+    }
+    .stat-info p {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0;
+    }
+    .stat-total { color: #EE1C25; }
+    .stat-pending { color: #92400e; }
+    .stat-processing { color: #1e40af; }
+    .stat-scheduled { color: #3730a3; }
+    .stat-completed { color: #065f46; }
+    .stat-rejected { color: #991b1b; }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><span class="lang-en">Dashboard</span><span class="lang-fr">Tableau de bord</span></h1>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon" style="background: #fee2e2; color: #EE1C25;">
+            <i data-lucide="clipboard-list"></i>
+        </div>
+        <div class="stat-info">
+            <h3><span class="lang-en">Total Requests</span><span class="lang-fr">Total des demandes</span></h3>
+            <p class="stat-total">{{ stats.total }}</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background: #fef3c7; color: #92400e;">
+            <i data-lucide="clock"></i>
+        </div>
+        <div class="stat-info">
+            <h3><span class="lang-en">Pending</span><span class="lang-fr">En attente</span></h3>
+            <p class="stat-pending">{{ stats.pending }}</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background: #dbeafe; color: #1e40af;">
+            <i data-lucide="loader"></i>
+        </div>
+        <div class="stat-info">
+            <h3><span class="lang-en">Processing</span><span class="lang-fr">En cours</span></h3>
+            <p class="stat-processing">{{ stats.processing }}</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background: #e0e7ff; color: #3730a3;">
+            <i data-lucide="calendar"></i>
+        </div>
+        <div class="stat-info">
+            <h3><span class="lang-en">Scheduled</span><span class="lang-fr">Planifié</span></h3>
+            <p class="stat-scheduled">{{ stats.scheduled }}</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background: #d1fae5; color: #065f46;">
+            <i data-lucide="check-circle"></i>
+        </div>
+        <div class="stat-info">
+            <h3><span class="lang-en">Completed</span><span class="lang-fr">Terminé</span></h3>
+            <p class="stat-completed">{{ stats.completed }}</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background: #fee2e2; color: #991b1b;">
+            <i data-lucide="x-circle"></i>
+        </div>
+        <div class="stat-info">
+            <h3><span class="lang-en">Rejected</span><span class="lang-fr">Rejeté</span></h3>
+            <p class="stat-rejected">{{ stats.rejected }}</p>
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-grid" style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
+    <div class="card">
+        <h3 style="margin-bottom: 1rem;"><span class="lang-en">Requests (Last 7 Days)</span><span class="lang-fr">Demandes (7 derniers jours)</span></h3>
+        <div class="chart-wrapper">
+            <canvas id="requestsChart"></canvas>
+        </div>
+    </div>
+    <div class="card">
+        <h3 style="margin-bottom: 1rem;"><span class="lang-en">Recent Requests</span><span class="lang-fr">Demandes récentes</span></h3>
+        {% for req in recent_requests %}
+        <div style="padding: 0.75rem 0; border-bottom: 1px solid var(--border-color);">
+            <a href="{% url 'admin_request_detail' req.id %}" style="color: var(--primary); text-decoration: none; font-weight: 500;">{{ req.title }}</a>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.25rem;">
+                <span style="font-size: 0.75rem; color: var(--text-secondary);">{{ req.requester.get_full_name|default:req.requester.username }}</span>
+                <span class="badge badge-{{ req.status_color }}">{{ req.get_status_display }}</span>
+            </div>
+        </div>
+        {% empty %}
+        <p style="color: var(--text-secondary);"><span class="lang-en">No recent requests.</span><span class="lang-fr">Aucune demande récente.</span></p>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('requestsChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: JSON.parse('{{ chart_labels|safe }}'),
+            datasets: [{
+                label: 'Requests',
+                data: JSON.parse('{{ chart_data|safe }}'),
+                borderColor: '#EE1C25',
+                backgroundColor: 'rgba(238, 28, 37, 0.1)',
+                tension: 0.4,
+                fill: true,
+                pointRadius: 4,
+                pointHoverRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#f1f5f9' } },
+                x: { grid: { display: false }, ticks: { font: { size: 11 } } }
+            },
+            elements: {
+                line: { borderWidth: 2 }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

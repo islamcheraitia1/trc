@@ -1,0 +1,248 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} - Sonatrach TRC{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><span class="lang-en">{{ title }}</span><span class="lang-fr">{% if title == "New Request" %}Nouvelle demande{% else %}Modifier la demande{% endif %}</span></h1>
+</div>
+
+<div class="card" style="max-width: 800px;">
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="id_request_category">
+                <span class="lang-en">Category</span><span class="lang-fr">Catégorie</span>
+            </label>
+            {{ form.request_category }}
+            {% if form.request_category.errors %}
+            <p style="color: var(--danger); font-size: 0.75rem; margin-top: 0.25rem;">{{ form.request_category.errors.0 }}</p>
+            {% endif %}
+        </div>
+
+        <div class="form-group" id="subcategory_group" style="display: none;">
+            <label for="id_request_subcategory">
+                <span class="lang-en">Sub-category</span><span class="lang-fr">Sous-catégorie</span>
+            </label>
+            {{ form.request_subcategory }}
+            {% if form.request_subcategory.errors %}
+            <p style="color: var(--danger); font-size: 0.75rem; margin-top: 0.25rem;">{{ form.request_subcategory.errors.0 }}</p>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="id_title">
+                <span class="lang-en">Title</span><span class="lang-fr">Titre</span>
+            </label>
+            {{ form.title }}
+            {% if form.title.errors %}
+            <p style="color: var(--danger); font-size: 0.75rem; margin-top: 0.25rem;">{{ form.title.errors.0 }}</p>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="id_description">
+                <span class="lang-en">Description</span><span class="lang-fr">Description</span>
+            </label>
+            {{ form.description }}
+            {% if form.description.errors %}
+            <p style="color: var(--danger); font-size: 0.75rem; margin-top: 0.25rem;">{{ form.description.errors.0 }}</p>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="id_office_location">
+                <span class="lang-en">Location</span><span class="lang-fr">Emplacement</span>
+            </label>
+            {{ form.office_location }}
+            {% if form.office_location.errors %}
+            <p style="color: var(--danger); font-size: 0.75rem; margin-top: 0.25rem;">{{ form.office_location.errors.0 }}</p>
+            {% endif %}
+        </div>
+
+        <div class="form-group" id="destination_group" style="display: none;">
+            <label for="id_destination_location">
+                <span class="lang-en">Destination</span><span class="lang-fr">Destination</span>
+            </label>
+            {{ form.destination_location }}
+            {% if form.destination_location.errors %}
+            <p style="color: var(--danger); font-size: 0.75rem; margin-top: 0.25rem;">{{ form.destination_location.errors.0 }}</p>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="id_priority">
+                <span class="lang-en">Priority</span><span class="lang-fr">Priorité</span>
+            </label>
+            {{ form.priority }}
+            {% if form.priority.errors %}
+            <p style="color: var(--danger); font-size: 0.75rem; margin-top: 0.25rem;">{{ form.priority.errors.0 }}</p>
+            {% endif %}
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+                <label for="id_availability_start">
+                    <span class="lang-en">Availability start</span><span class="lang-fr">Début de disponibilité</span>
+                </label>
+                {{ form.availability_start }}
+                {% if form.availability_start.errors %}
+                <p style="color: var(--danger); font-size: 0.75rem; margin-top: 0.25rem;">{{ form.availability_start.errors.0 }}</p>
+                {% endif %}
+            </div>
+            <div class="form-group">
+                <label for="id_availability_end">
+                    <span class="lang-en">Availability end</span><span class="lang-fr">Fin de disponibilité</span>
+                </label>
+                {{ form.availability_end }}
+                {% if form.availability_end.errors %}
+                <p style="color: var(--danger); font-size: 0.75rem; margin-top: 0.25rem;">{{ form.availability_end.errors.0 }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="id_attachment">
+                <span class="lang-en">Attached photo</span><span class="lang-fr">Photo jointe</span>
+            </label>
+            {{ form.attachment }}
+            {% if form.attachment.errors %}
+            <p style="color: var(--danger); font-size: 0.75rem; margin-top: 0.25rem;">{{ form.attachment.errors.0 }}</p>
+            {% endif %}
+        </div>
+
+        <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem;">
+            <button type="submit" class="btn btn-primary"><span class="lang-en">Submit</span><span class="lang-fr">Soumettre</span></button>
+            <a href="{% url 'request_list' %}" class="btn btn-secondary"><span class="lang-en">Cancel</span><span class="lang-fr">Annuler</span></a>
+        </div>
+    </form>
+</div>
+
+<script>
+(function() {
+    var subcategories = {
+        'deplacement': [
+            ['materiel_informatique', 'Matériel informatique', 'IT Equipment'],
+            ['mobilier', 'Mobilier', 'Furniture'],
+            ['archives', 'Archives', 'Archives'],
+            ['autre_deplacement', 'Autre', 'Other']
+        ],
+        'nettoyage': [
+            ['vider_corbeille', 'Vider corbeille', 'Empty trash'],
+            ['poussiere', 'Poussière', 'Dusting'],
+            ['probleme_sanitaire', 'Problème sanitaire', 'Sanitary issue'],
+            ['autre_nettoyage', 'Autre', 'Other']
+        ],
+        'desinsectisation': [
+            ['fourmis', 'Fourmis', 'Ants'],
+            ['cafards', 'Cafards', 'Cockroaches'],
+            ['mouches', 'Mouches', 'Flies'],
+            ['moustiques', 'Moustiques', 'Mosquitoes'],
+            ['rongeurs', 'Rongeurs', 'Rodents'],
+            ['autre_desinsectisation', 'Autre', 'Other']
+        ],
+        'maintenance': [
+            ['prise_electrique', 'Prise électrique', 'Electrical outlet'],
+            ['led', 'LED', 'LED'],
+            ['climatiseur', 'Climatiseur', 'Air conditioner'],
+            ['autre_maintenance', 'Autre', 'Other']
+        ]
+    };
+
+    var categoryData = {
+        '': ['---------', '---------'],
+        'deplacement': ['Déplacement', 'Relocation'],
+        'nettoyage': ['Nettoyage', 'Cleaning'],
+        'desinsectisation': ['Désinsectisation', 'Pest Control'],
+        'maintenance': ['Maintenance', 'Maintenance']
+    };
+
+    var priorityData = {
+        '': ['---------', '---------'],
+        'low': ['Faible', 'Low'],
+        'medium': ['Moyen', 'Medium'],
+        'high': ['Élevé', 'High'],
+        'urgent': ['Urgent', 'Urgent']
+    };
+
+    var categorySelect = document.getElementById('id_request_category');
+    var subcategoryGroup = document.getElementById('subcategory_group');
+    var subcategorySelect = document.getElementById('id_request_subcategory');
+    var destinationGroup = document.getElementById('destination_group');
+    var prioritySelect = document.getElementById('id_priority');
+    var initialSubcategory = "{{ form.request_subcategory.value|default:'' }}";
+    var currentLang = localStorage.getItem('language') || 'en';
+
+    function applyOptionLang(select, dataMap) {
+        var opts = select.querySelectorAll('option');
+        for (var i = 0; i < opts.length; i++) {
+            var opt = opts[i];
+            var val = opt.value;
+            if (dataMap[val]) {
+                opt.setAttribute('data-en', dataMap[val][1]);
+                opt.setAttribute('data-fr', dataMap[val][0]);
+                opt.textContent = currentLang === 'fr' ? dataMap[val][0] : dataMap[val][1];
+            }
+        }
+    }
+
+    function getSubcategoryText(items) {
+        return currentLang === 'fr' ? items[1] : items[2];
+    }
+
+    function updateSubcategory(category, currentValue) {
+        subcategorySelect.innerHTML = '';
+        if (category && subcategories[category]) {
+            var options = subcategories[category];
+            for (var i = 0; i < options.length; i++) {
+                var opt = document.createElement('option');
+                opt.value = options[i][0];
+                opt.setAttribute('data-en', options[i][2]);
+                opt.setAttribute('data-fr', options[i][1]);
+                opt.textContent = getSubcategoryText(options[i]);
+                if (options[i][0] === currentValue) {
+                    opt.selected = true;
+                }
+                subcategorySelect.appendChild(opt);
+            }
+            subcategoryGroup.style.display = 'block';
+        } else {
+            subcategoryGroup.style.display = 'none';
+        }
+    }
+
+    function updateDestination(category) {
+        destinationGroup.style.display = category === 'deplacement' ? 'block' : 'none';
+    }
+
+    function updateAllLanguage(lang) {
+        currentLang = lang;
+        applyOptionLang(categorySelect, categoryData);
+        applyOptionLang(prioritySelect, priorityData);
+        var subOpts = subcategorySelect.querySelectorAll('option[data-en][data-fr]');
+        for (var i = 0; i < subOpts.length; i++) {
+            subOpts[i].textContent = lang === 'fr' ? subOpts[i].getAttribute('data-fr') : subOpts[i].getAttribute('data-en');
+        }
+    }
+
+    categorySelect.addEventListener('change', function() {
+        updateSubcategory(this.value, '');
+        updateDestination(this.value);
+    });
+
+    var initialCategory = categorySelect.value;
+    if (initialCategory) {
+        updateSubcategory(initialCategory, initialSubcategory);
+        updateDestination(initialCategory);
+    }
+
+    applyOptionLang(categorySelect, categoryData);
+    applyOptionLang(prioritySelect, priorityData);
+
+    window.updateFormLanguage = function(lang) {
+        updateAllLanguage(lang);
+    };
+})();
+</script>
+{% endblock %}
